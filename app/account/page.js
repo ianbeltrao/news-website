@@ -11,10 +11,8 @@ export default async function AccountPage() {
     redirect("/login");
   }
 
-  // Fetch user settings including API key and topics
   const settings = await getUserSettings(session.user.id);
 
-  // Combine user data with settings
   const userData = {
     ...session.user,
     settings

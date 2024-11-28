@@ -28,10 +28,8 @@ export default function SavedArticlesContent({ userId, initialData }) {
   const [selectedTopic, setSelectedTopic] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   
-  // Get unique topics from articles
   const topics = useMemo(() => {
     const topicSet = new Set(initialData.settings?.favoriteTopics || []);
-    // Add topics from articles
     articles.forEach(article => {
       if (article.topics && Array.isArray(article.topics)) {
         article.topics.forEach(topic => topicSet.add(topic));
@@ -40,20 +38,16 @@ export default function SavedArticlesContent({ userId, initialData }) {
     return Array.from(topicSet).sort();
   }, [articles, initialData.settings]);
 
-  // Filter articles based on selected filters and search query
   const filteredArticles = useMemo(() => {
     return articles.filter(article => {
-      // Filter by collection
       if (selectedCollection !== "all" && article.collectionId !== selectedCollection) {
         return false;
       }
       
-      // Filter by topic
       if (selectedTopic !== "all") {
         return article.topics?.includes(selectedTopic.toLowerCase());
       }
       
-      // Filter by search query
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         return (
@@ -86,7 +80,6 @@ export default function SavedArticlesContent({ userId, initialData }) {
 
   const handleUpdateArticle = async (articleId, collectionId) => {
     try {
-      // Update article logic here
       setArticles(prev => prev.map(article => 
         article.id === articleId 
           ? { ...article, collectionId } 

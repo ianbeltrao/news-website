@@ -21,10 +21,8 @@ export default function NewsCard({
 
   const handleSaveClick = () => {
     if (isSaved) {
-      // If article is already saved, open modal for editing
       setIsModalOpen(true);
     } else {
-      // If article is not saved, directly call onSave
       onSave(article);
     }
   };

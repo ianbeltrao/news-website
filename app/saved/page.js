@@ -12,7 +12,6 @@ export default async function SavedArticles() {
     redirect("/login");
   }
 
-  // Fetch initial data (saved articles, collections, settings)
   const data = await getSavedArticlesData(session.user.id);
 
   return (

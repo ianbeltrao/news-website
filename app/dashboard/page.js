@@ -28,7 +28,6 @@ export default async function Dashboard() {
     );
   }
 
-  // Fetch initial dashboard data
   const dashboardData = await getDashboardData(session.user.id);
 
   console.log(dashboardData);

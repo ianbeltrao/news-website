@@ -4,7 +4,6 @@ import { getUserSettings } from "@/lib/firebase/server";
 
 export async function searchNews(userId, query) {
   try {
-    // Get the API key from user settings
     const settings = await getUserSettings(userId);
     
     if (!settings?.newsApiKey) {
@@ -13,7 +12,7 @@ export async function searchNews(userId, query) {
 
     const response = await fetch(
       `https://newsapi.org/v2/everything?q=${query}&sortBy=publishedAt&apiKey=${settings.newsApiKey}`,
-      { next: { revalidate: 300 } } // Cache for 5 minutes
+      { next: { revalidate: 300 } }
     );
 
     const data = await response.json();
