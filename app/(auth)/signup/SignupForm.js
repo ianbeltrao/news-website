@@ -56,11 +56,12 @@ export default function SignUp() {
       );
 
       await createUser(userCredential.user.uid, email);
-
       await login(userCredential.user.uid);
-
-      router.push("/]");
     } catch (error) {
+      if (error?.message?.includes('NEXT_REDIRECT')) {
+        return; // This is expected, let the redirect happen
+      }
+
       console.error("Error creating user:", error);
       if (error.code === "auth/email-already-in-use") {
         toast({
@@ -95,9 +96,11 @@ export default function SignUp() {
 
       await createUser(uid, email);
       await login(uid);
-
-      router.push("/");
     } catch (error) {
+      if (error?.message?.includes('NEXT_REDIRECT')) {
+        return; // This is expected, let the redirect happen
+      }
+
       console.error("Google Sign-In error:", error);
       toast({
         title: "Google Sign-In Failed",

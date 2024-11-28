@@ -56,8 +56,11 @@ export default function Login() {
       const { uid } = userCredential.user;
       
       await login(uid);
-      //router.push("/");
     } catch (error) {
+      if (error?.message?.includes('NEXT_REDIRECT')) {
+        return;
+      }
+      
       console.error("Google Sign-In error:", error);
       toast({
         title: "Google Sign-In Failed", 
