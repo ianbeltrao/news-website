@@ -36,7 +36,7 @@ export default function Login() {
         password
       );
       await login(userCredential.user.uid);
-      router.push("/dashboard");
+      router.push("/");
     } catch (error) {
       console.error("Login error:", error);
       toast({
@@ -57,7 +57,7 @@ export default function Login() {
       const { uid } = userCredential.user;
       
       await login(uid);
-      router.push("/dashboard");
+      router.push("/]");
     } catch (error) {
       console.error("Google Sign-In error:", error);
       toast({

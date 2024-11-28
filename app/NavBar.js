@@ -14,7 +14,7 @@ import { Menu, User } from "lucide-react";
 import Logo from "@/components/ui/Logo";
 
 const navigationLinks = [
-  { label: "Dashboard", href: "/dashboard" },
+  { label: "Search", href: "/" },
   { label: "Saved Articles", href: "/saved" }
 ];
 
@@ -42,7 +42,7 @@ function DesktopNavigation({ links }) {
   return (
     <nav className="hidden md:flex items-center w-full max-w-screen-2xl mx-auto">
       <div className="w-[120px]">
-        <Link href="/dashboard">
+        <Link href="/">
           <Logo />
         </Link>
       </div>
@@ -87,7 +87,7 @@ function MobileNavigation({ links }) {
         </SheetHeader>
         <nav className="grid gap-6 text-lg font-medium">
           <div className="flex items-center gap-2 text-lg font-semibold">
-            <Link href="/dashboard" className="w-[120px]">
+            <Link href="/]" className="w-[120px]">
               <Logo />
             </Link>
           </div>

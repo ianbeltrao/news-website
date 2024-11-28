@@ -18,10 +18,10 @@ export async function login(userId) {
     await signIn("credentials", {
       cred,
       redirect: true,
-      redirectTo: "/dashboard",
+      redirectTo: "/",
     });
 
-    redirect("/dashboard");
+    redirect("/");
   } catch (error) {
     if (isRedirectError(error)) {
       throw error;

@@ -59,7 +59,7 @@ export default function SignUp() {
 
       await login(userCredential.user.uid);
 
-      router.push("/dashboard");
+      router.push("/]");
     } catch (error) {
       console.error("Error creating user:", error);
       if (error.code === "auth/email-already-in-use") {
@@ -95,8 +95,8 @@ export default function SignUp() {
 
       await createUser(uid, email);
       await login(uid);
-      
-      router.push("/dashboard");
+
+      router.push("/");
     } catch (error) {
       console.error("Google Sign-In error:", error);
       toast({
