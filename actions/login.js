@@ -21,6 +21,8 @@ export async function login(userId) {
     });
 
     redirect("/");
+
+    return true;
   } catch (error) {
     if (isRedirectError(error)) {
       throw error;
