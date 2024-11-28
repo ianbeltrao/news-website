@@ -28,16 +28,16 @@ export default function SavedArticlesContent({ userId, initialData }) {
   const [selectedTopic, setSelectedTopic] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   
-  // Get unique topics from favorite topics in settings
+  // Get unique topics from articles
   const topics = useMemo(() => {
     const topicSet = new Set(initialData.settings?.favoriteTopics || []);
-    // Also add topics from articles if they have any
+    // Add topics from articles
     articles.forEach(article => {
-      if (article.topics) {
+      if (article.topics && Array.isArray(article.topics)) {
         article.topics.forEach(topic => topicSet.add(topic));
       }
     });
-    return Array.from(topicSet);
+    return Array.from(topicSet).sort();
   }, [articles, initialData.settings]);
 
   // Filter articles based on selected filters and search query
@@ -50,12 +50,7 @@ export default function SavedArticlesContent({ userId, initialData }) {
       
       // Filter by topic
       if (selectedTopic !== "all") {
-        // Check if article title or description contains the topic
-        const topicLower = selectedTopic.toLowerCase();
-        return (
-          article.title?.toLowerCase().includes(topicLower) ||
-          article.description?.toLowerCase().includes(topicLower)
-        );
+        return article.topics?.includes(selectedTopic.toLowerCase());
       }
       
       // Filter by search query
@@ -63,7 +58,8 @@ export default function SavedArticlesContent({ userId, initialData }) {
         const query = searchQuery.toLowerCase();
         return (
           article.title?.toLowerCase().includes(query) ||
-          article.description?.toLowerCase().includes(query)
+          article.description?.toLowerCase().includes(query) ||
+          article.topics?.some(topic => topic.includes(query))
         );
       }
       

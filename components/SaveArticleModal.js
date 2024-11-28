@@ -25,7 +25,8 @@ import {
 import { 
   getUserCollections, 
   createCollection, 
-  removeArticle 
+  removeArticle, 
+  updateArticleCollection 
 } from "@/lib/firebase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2, Trash2, Edit3, Save } from "lucide-react";
@@ -46,8 +47,8 @@ export default function SaveArticleModal({
   onSave,
   onRemove, 
   userId,
-  article, // Pass the current article if editing
-  isEdit = false // Flag to determine if we're editing an existing article
+  article, 
+  isEdit = false 
 }) {
   const { toast } = useToast();
   const [collections, setCollections] = useState([]);
@@ -115,19 +116,44 @@ export default function SaveArticleModal({
   };
 
   const handleSave = async () => {
-    const collectionId = activeTab === "quick-save" ? null : selectedCollection;
-    
-    if (activeTab === "collections" && !selectedCollection) {
+    try {
+      if (isEdit) {
+        const collectionId = activeTab === "quick-save" ? null : selectedCollection;
+        const result = await updateArticleCollection(article.id, collectionId);
+        
+        if (result.success) {
+          await onSave(article.id, collectionId);
+          toast({
+            title: "Success",
+            description: collectionId 
+              ? "Article moved to collection" 
+              : "Article removed from collection",
+          });
+        } else {
+          throw new Error(result.error);
+        }
+      } else {
+        const collectionId = activeTab === "quick-save" ? null : selectedCollection;
+        
+        if (activeTab === "collections" && !selectedCollection) {
+          toast({
+            title: "Error",
+            description: "Please select a collection first.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        await onSave(collectionId);
+      }
+      onClose();
+    } catch (error) {
       toast({
         title: "Error",
-        description: "Please select a collection first.",
+        description: "Failed to save changes",
         variant: "destructive",
       });
-      return;
     }
-    
-    await onSave(collectionId);
-    onClose();
   };
 
   const handleDelete = async () => {
@@ -141,8 +167,8 @@ export default function SaveArticleModal({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
+        <DialogContent className="max-w-md p-0 gap-0">
+          <DialogHeader className="p-6 pb-2">
             <DialogTitle>
               {isEdit ? "Edit Saved Article" : "Save Article"}
             </DialogTitle>
@@ -153,88 +179,115 @@ export default function SaveArticleModal({
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="quick-save">Quick Save</TabsTrigger>
-              <TabsTrigger value="collections">Collections</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="quick-save" className="mt-4">
-              <div className="text-sm text-muted-foreground">
-                Save this article without adding it to a collection. 
-                You can organize it later from your library.
-              </div>
-            </TabsContent>
-
-            <TabsContent value="collections" className="mt-4 space-y-4">
-              {collections.length > 0 ? (
-                <Select
-                  value={selectedCollection}
-                  onValueChange={setSelectedCollection}
+          <div className="px-6">
+            <Tabs 
+              value={activeTab} 
+              onValueChange={setActiveTab} 
+              className="w-full"
+            >
+              <TabsList className="grid w-full grid-cols-2 mb-2">
+                <TabsTrigger 
+                  value="quick-save"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a collection" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {collections.map((collection) => (
-                      <SelectItem key={collection.id} value={collection.id}>
-                        {collection.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <div className="text-sm text-muted-foreground">
-                  No collections yet. Create your first one below.
-                </div>
-              )}
-
-              <form onSubmit={handleCreateCollection} className="flex gap-2">
-                <Input
-                  placeholder="New collection name"
-                  value={newCollectionName}
-                  onChange={(e) => setNewCollectionName(e.target.value)}
-                  disabled={isLoading}
-                />
-                <Button 
-                  type="submit"
-                  variant="secondary" 
-                  disabled={isLoading || !newCollectionName.trim()}
+                  {isEdit ? "No Collection" : "Quick Save"}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="collections"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                 >
-                  {isLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                  Collections
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="quick-save" className="mt-2 space-y-4">
+                <div className="text-sm text-muted-foreground rounded-lg bg-muted p-4">
+                  {isEdit ? (
+                    <p>Remove this article from its collection while keeping it saved in your library.</p>
                   ) : (
-                    "Create"
+                    <>
+                      <p>Save this article without adding it to a collection.</p>
+                      <p className="mt-1 text-xs">You can organize it later from your library.</p>
+                    </>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="collections" className="mt-2 space-y-4">
+                {collections.length > 0 ? (
+                  <Select
+                    value={selectedCollection}
+                    onValueChange={setSelectedCollection}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a collection" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {collections.map((collection) => (
+                        <SelectItem key={collection.id} value={collection.id}>
+                          {collection.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="text-sm text-muted-foreground rounded-lg bg-muted p-4">
+                    No collections yet. Create your first one below.
+                  </div>
+                )}
+
+                <form onSubmit={handleCreateCollection} className="flex gap-2">
+                  <Input
+                    placeholder="New collection name"
+                    value={newCollectionName}
+                    onChange={(e) => setNewCollectionName(e.target.value)}
+                    disabled={isLoading}
+                  />
+                  <Button 
+                    type="submit"
+                    variant="secondary" 
+                    disabled={isLoading || !newCollectionName.trim()}
+                    className="shrink-0"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      "Create"
+                    )}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          <DialogFooter className="px-6 py-4 mt-6 border-t">
+            <div className="flex w-full justify-between items-center gap-2">
+              {isEdit && (
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowDeleteAlert(true)}
+                  size="sm"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Remove
+                </Button>
+              )}
+              <div className="flex gap-2 ml-auto">
+                <Button variant="outline" onClick={onClose} size="sm">
+                  Cancel
+                </Button>
+                <Button onClick={handleSave} size="sm">
+                  {isEdit ? (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      Update
+                    </>
+                  ) : (
+                    'Save Article'
                   )}
                 </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
-
-          <DialogFooter className="mt-4 space-x-2">
-            {isEdit && (
-              <Button
-                variant="destructive"
-                onClick={() => setShowDeleteAlert(true)}
-                className="mr-auto"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Remove
-              </Button>
-            )}
-            <Button variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave}>
-              {isEdit ? (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Update
-                </>
-              ) : (
-                'Save Article'
-              )}
-            </Button>
+              </div>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>

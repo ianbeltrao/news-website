@@ -42,6 +42,8 @@ export default function DashboardContent({
       
       if (result.success) {
         const formattedArticles = result.articles.map(article => ({
+          ...article,
+          topics: [query.toLowerCase()],
           title: article.title || '',
           description: article.description || '',
           url: article.url || '',

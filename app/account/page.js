@@ -2,18 +2,23 @@
 
 import { auth } from "@/auth";
 import AccountComp from "./AccountComp";
-import { getDoc } from "@/lib/firebase/server";
+import { getUserSettings } from "@/lib/firebase/server";
 
 export default async function AccountPage() {
-  // Fetch authentication data
-  const { user } = (await auth()) || {};
+  const session = await auth();
 
-  let userDoc = {};
-
-  if (user) {
-    userDoc = await getDoc("users", user.id);
+  if (!session?.user) {
+    redirect("/login");
   }
 
-  // Render the AccountComp with user data
-  return <AccountComp user={user} />;
+  // Fetch user settings including API key and topics
+  const settings = await getUserSettings(session.user.id);
+
+  // Combine user data with settings
+  const userData = {
+    ...session.user,
+    settings
+  };
+
+  return <AccountComp user={userData} />;
 }
