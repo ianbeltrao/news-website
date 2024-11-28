@@ -186,7 +186,7 @@ export default function SavedArticlesContent({ userId, initialData }) {
                     className="ml-2"
                     onClick={() => setSearchQuery("")}
                   >
-                    "{searchQuery}"
+                    &ldquo;{searchQuery}&rdquo;
                     ×
                   </Button>
                 )}
