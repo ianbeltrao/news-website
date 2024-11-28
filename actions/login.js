@@ -17,8 +17,7 @@ export async function login(userId) {
   try {
     await signIn("credentials", {
       cred,
-      redirect: true,
-      redirectTo: "/",
+      redirect: false,
     });
 
     redirect("/");
